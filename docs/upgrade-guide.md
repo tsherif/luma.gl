@@ -45,6 +45,28 @@ import {radians, degrees, Vector2, Vector3, Vector4, Matrix4} from 'math.gl';
 ```
 
 
+### Program
+
+| 'Program.reset() | VertexArray.reset() | 6.0'); |
+| 'Program.setVertexArray() | Program.draw({vertexArray}) | 6.0'); |
+| 'Program.setAttributes() | VertexArray.setAttributes() | 6.0');  |
+| 'Program.setBuffers() | VertexArray.setAttributes() | 6.0'); |
+| 'Program.unsetBuffers() | No longer needed | 6.0'); |
+
+
+### VertexArray
+
+| 'VertexArray.setBuffers' | VertexArray.setAttributes' | v6.0')();
+| 'VertexArray.setGeneric' | VertexArray.setConstant' | v6.0')();
+
+| 'VertexArray.filledLocations' | N/A')();
+| 'VertexArray.clearBindings' | VertexArray.reset' | v6.0')();
+| 'VertexArray.setLocations'| VertexArray.constructor({program})' | v6.0')();
+| 'VertexArray.setGenericValues' | VertexArray.setConstant' | v6.0')();
+| VertexArray.setDivisor | gl.vertexAttribDivisor | v6.0')();
+| 'VertexArray.enable | gl.enableVertexAttribArray | v6.0')();
+| 'VertexArray.disable | gl.disableVertexAttribArray | v6.0')();
+
 
 If you need access to the WebGL context created by another application or framework, this spy allows you to intercept context creation requests.
 

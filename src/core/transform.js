@@ -6,10 +6,9 @@ import {isWebGL2, assertWebGL2Context} from '../webgl-utils';
 import assert from '../utils/assert';
 import {log} from '../utils';
 
-const PASS_THROUGH_FS = `\
-void main()
-{
-}
+// Need a minimal fragment shader to make program compile when only vertex shader specified
+const EMPTY_FS = `\
+void main() {}
 `;
 
 export default class Transform {
@@ -182,10 +181,10 @@ export default class Transform {
   _buildModel({vs, drawMode, elementCount}) {
     // Append matching version string to the fragment shader to ensure compilation succeeds
     // TODO - is this still needed now that we have shader transpilatio?
-    let fs = PASS_THROUGH_FS;
+    let fs = EMPTY_FS;
     if (vs.indexOf('#version ') === 0) {
       const vsLines = vs.split('\n');
-      fs = `${vsLines[0]}\n${PASS_THROUGH_FS}`;
+      fs = `${vsLines[0]}\n${EMPTY_FS}`;
     }
 
     this.model = new Model(this.gl, {

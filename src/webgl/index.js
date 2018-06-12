@@ -48,9 +48,6 @@ export {default as Texture2D} from './texture-2d';
 export {default as TextureCube} from './texture-cube';
 
 // Functions
-export {
-  draw
-} from './draw';
 
 export {
   clear

@@ -1,6 +1,6 @@
 import Resource from './resource';
 import {isWebGL2, assertWebGL2Context} from '../webgl-utils';
-import assert from '../utils/assert';
+import {log} from '../utils';
 
 const GL_TRANSFORM_FEEDBACK_BUFFER = 0x8C8E;
 const GL_TRANSFORM_FEEDBACK = 0x8E22;
@@ -23,56 +23,81 @@ export default class TranformFeedback extends Resource {
   constructor(gl, opts = {}) {
     assertWebGL2Context(gl);
     super(gl, opts);
+
+    this.configuration = null;
     this.buffers = {};
-    Object.seal(this);
 
     this.initialize(opts);
+    Object.seal(this);
   }
 
-  initialize({buffers = {}, varyingMap = {}}) {
-    this.bindBuffers(buffers, {clear: true, varyingMap});
-  }
-
-  bindBuffers(buffers = {}, {clear = false, varyingMap = {}} = {}) {
-    if (clear) {
-      this._unbindBuffers();
-      this.buffers = {};
+  initialize(props) {
+    const config = props.configuration || (props.program && props.program.getConfiguration());
+    if (config) {
+      this.configuration = config;
     }
+    this.reset();
+    this.bindBuffers(props.buffers || {});
+  }
+
+  reset() {
+    this._unbindBuffers();
+    this.unused = [];
+    this.buffers = {};
+  }
+
+  setBuffers(buffers = {}) {
     for (const bufferName in buffers) {
-      const buffer = buffers[bufferName];
-      const index = Number.isFinite(Number(bufferName)) ?
-        Number(bufferName) : varyingMap[bufferName];
-      assert(Number.isFinite(index));
-      this.buffers[index] = buffer;
+      this.setBuffer(bufferName, buffers[bufferName]);
     }
+    return this;
   }
 
-  // TODO: Activation is tightly coupled to the current program. Since we try to encapsulate
-  // program.use, should we move these methods (begin/pause/resume/end) to the Program?
+  setBuffer(locationOrName, buffer) {
+    // const index = Number.isFinite(Number(bufferName)) ?
+    //   Number(bufferName) : varyingMap[bufferName];
+    const location = this.getVaryingIndex(locationOrName, buffer);
+    if (location < 0) {
+      this.unused[locationOrName] = buffer;
+      log.warn(() => `${this.id} unused varying buffer ${locationOrName}`)();
+      return this;
+    }
+    this.buffers[location] = buffer;
+
+    this.gl.bindTransformFeedback(GL_TRANSFORM_FEEDBACK, this.handle);
+    this.gl.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, location, buffer.handle);
+    this.gl.bindTransformFeedback(GL_TRANSFORM_FEEDBACK, null);
+
+    // if (size === undefined) {
+    // } else {
+    //   this.gl.bindBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, index, buffer.handle, offset, size);
+    // }
+
+    return this;
+  }
+
   begin(primitiveMode) {
-    this._bindBuffers();
+    // this._bindBuffers();
     this.gl.bindTransformFeedback(GL_TRANSFORM_FEEDBACK, this.handle);
     this.gl.beginTransformFeedback(primitiveMode);
     return this;
   }
 
   pause() {
-    this.gl.bindTransformFeedback(GL_TRANSFORM_FEEDBACK, this.handle);
     this.gl.pauseTransformFeedback();
     this.gl.bindTransformFeedback(GL_TRANSFORM_FEEDBACK, null);
-    this._unbindBuffers();
+    // this._unbindBuffers();
     return this;
   }
 
   resume() {
-    this._bindBuffers();
+    // this._bindBuffers();
     this.gl.bindTransformFeedback(GL_TRANSFORM_FEEDBACK, this.handle);
     this.gl.resumeTransformFeedback();
     return this;
   }
 
   end() {
-    this.gl.bindTransformFeedback(GL_TRANSFORM_FEEDBACK, this.handle);
     this.gl.endTransformFeedback();
     this.gl.bindTransformFeedback(GL_TRANSFORM_FEEDBACK, null);
     this._unbindBuffers();
@@ -82,7 +107,6 @@ export default class TranformFeedback extends Resource {
   bindBuffer({index, buffer, offset = 0, size}) {
     // Need to avoid chrome bug where buffer that is already bound to a different target
     // cannot be bound to 'TRANSFORM_FEEDBACK_BUFFER' target.
-    buffer.unbind();
     this.gl.bindTransformFeedback(GL_TRANSFORM_FEEDBACK, this.handle);
     if (size === undefined) {
       this.gl.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, index, buffer.handle);
@@ -98,7 +122,45 @@ export default class TranformFeedback extends Resource {
     return this;
   }
 
+  bind(funcOrHandle = this.handle) {
+    if (typeof funcOrHandle !== 'function') {
+      this.bindTransformFeedback(funcOrHandle);
+      return this;
+    }
+
+    let value;
+
+    if (!this._bound) {
+      this.gl.bindTransformFeedback(this.handle);
+      this._bound = true;
+
+      value = funcOrHandle();
+
+      this.gl.bindTransformFeedback(null);
+      this._bound = false;
+    } else {
+      value = funcOrHandle();
+    }
+
+    return value;
+  }
+
   // PRIVATE METHODS
+
+  getVaryingInfo(locationOrName) {
+    return this.configuration && this.configuration.getVaryingInfo(locationOrName);
+  }
+
+  getVaryingIndex(locationOrName) {
+    if (this.configuration) {
+      return this.configuration.getVaryingInfo(locationOrName).location;
+    }
+    const location = Number(locationOrName);
+    if (Number.isFinite(location)) {
+      return location;
+    }
+    return -1;
+  }
 
   // See https://github.com/KhronosGroup/WebGL/issues/2346
   // If it was true that having a buffer on an unused TF was a problem
@@ -133,5 +195,11 @@ export default class TranformFeedback extends Resource {
 
   _deleteHandle() {
     this.gl.deleteTransformFeedback(this.handle);
+  }
+
+  // DEPRECATED
+
+  bindBuffers(buffers = {}) {
+    return this.setBuffers(buffers);
   }
 }

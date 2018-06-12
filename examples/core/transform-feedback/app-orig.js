@@ -1,6 +1,5 @@
-import 'luma.gl/debug';
 import {
-  AnimationLoop, Buffer, Model, Program, TransformFeedback, VertexArray, setParameters
+  AnimationLoop, Buffer, Program, TransformFeedback, VertexArray, setParameters
 } from 'luma.gl';
 import {Matrix4} from 'math.gl';
 
@@ -16,47 +15,57 @@ const POSITION_LOCATION = 0;
 const COLOR_LOCATION = 1;
 const VARYINGS = ['gl_Position', 'v_color'];
 
-const VS_TRANSFORM = `\
-#version 300 es
-layout(location = ${POSITION_LOCATION}) in vec4 position;
-uniform mat4 MVP;
+const VS_TRANSFORM = `#version 300 es
+  precision highp float;
+  precision highp int;
 
-out vec4 v_color;
+  layout(location = ${POSITION_LOCATION}) in vec4 position;
+  uniform mat4 MVP;
 
-void main() {
-  gl_Position = MVP * position;
-  v_color = vec4(clamp(5. * vec2(position), 0.0, 1.0), 0.0, 1.0);
-}
+  out vec4 v_color;
+
+  void main() {
+    gl_Position = MVP * position;
+    v_color = vec4(clamp(vec2(position), 0.0, 1.0), 0.0, 1.0);
+  }
 `;
 
-const FS_TRANSFORM = `\
-#version 300 es
-precision highp float;
-void main() {}
+const FS_TRANSFORM = `#version 300 es
+  precision highp float;
+  precision highp int;
+
+  in vec4 v_color;
+  out vec4 color;
+
+  void main() {
+    color = v_color;
+  }
 `;
 
-const VS_RENDER = `\
-#version 300 es
-layout(location = ${POSITION_LOCATION}) in vec4 position;
-layout(location = ${COLOR_LOCATION}) in vec4 color;
+const VS_FEEDBACK = `#version 300 es
+  precision highp float;
+  precision highp int;
 
-out vec4 v_color;
+  layout(location = ${POSITION_LOCATION}) in vec4 position;
+  layout(location = ${COLOR_LOCATION}) in vec4 color;
 
-void main() {
-  gl_Position = position;
-  v_color = color;
-}
+  out vec4 v_color;
+  void main() {
+    gl_Position = position;
+    v_color = color;
+  }
 `;
 
-const FS_RENDER = `#version 300 es
-precision highp float;
+const FS_FEEDBACK = `#version 300 es
+  precision highp float;
+  precision highp int;
 
-in vec4 v_color;
-out vec4 fragColor;
+  in vec4 v_color;
+  out vec4 color;
 
-void main() {
-  fragColor = v_color;
-}
+  void main() {
+    color = v_color;
+  }
 `;
 
 const VERTEX_COUNT = 6;
@@ -73,10 +82,8 @@ const POSITIONS = [
 const animationLoop = new AnimationLoop({
   glOptions: {
     webgl2: true,
-    webgl1: false,
     debug: true
   },
-
   // eslint-disable-next-line
   onInitialize({canvas, gl}) {
     // ---- SETUP BUFFERS ---- //
@@ -93,18 +100,19 @@ const animationLoop = new AnimationLoop({
     });
 
     const transformVertexArray = new VertexArray(gl, {
-      program: transformProgram,
-      attributes: {
-        [POSITION_LOCATION]: buffers.vertex
+      buffers: {
+        [POSITION_LOCATION]: {buffer: buffers.vertex, size: 4}
       }
     });
 
     const transformFeedback = new TransformFeedback(gl, {
       buffers: {
-        [POSITION_LOCATION]: buffers.position,
-        [COLOR_LOCATION]: buffers.color
+        0: buffers.position,
+        1: buffers.color
       }
     });
+
+    const renderProgram = new Program(gl, {vs: VS_FEEDBACK, fs: FS_FEEDBACK});
 
     transformProgram.draw({
       drawMode: gl.TRIANGLES,
@@ -119,44 +127,40 @@ const animationLoop = new AnimationLoop({
       }
     });
 
+    // second pass, render to screen
+    setParameters(gl, {
+      clearColor: [0.0, 0.0, 0.0, 1.0]
+    });
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    const renderVertexArray = new VertexArray(gl, {
+      buffers: {
+        [POSITION_LOCATION]: {buffer: buffers.position, size: 4},
+        [COLOR_LOCATION]: {buffer: buffers.color, size: 4}
+      }
+    });
+
+    renderProgram.draw({
+      drawMode: gl.TRIANGLE_FAN,
+      vertexCount: VERTEX_COUNT,
+      vertexArray: renderVertexArray
+    });
+
+    return false; // Don't start animation loop
+  },
+
+  onFinalize({
+    buffers, transformProgram, transformVertexArray, transformFeedback,
+    renderProgram, renderVertexArray
+  }) {
     transformFeedback.delete();
     transformVertexArray.delete();
     transformProgram.delete();
 
-    // const renderProgram = new Program(gl, {vs: VS_RENDER, fs: FS_RENDER});
+    renderVertexArray.delete();
+    renderProgram.delete();
 
-    // const renderVertexArray = new VertexArray(gl, {
-    //   program: renderProgram,
-    //   attributes: {
-    //     // position: buffers.position,
-    //     // color: buffers.color
-    //     [POSITION_LOCATION]: buffers.position,
-    //     [COLOR_LOCATION]: buffers.color
-    //   }
-    // });
-
-    const renderModel = new Model(gl, {
-      vs: VS_RENDER,
-      fs: FS_RENDER,
-      drawMode: gl.TRIANGLES,
-      vertexCount: 6,
-      attributes: {
-        [POSITION_LOCATION]: buffers.vertex,
-        [COLOR_LOCATION]: buffers.color
-      }
-    });
-
-    // second pass, render to screen
-    setParameters(gl, {
-      clearColor: [0.0, 0.0, 1.0, 1.0]
-    });
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    renderModel.draw();
-
-    renderModel.delete();
-
-    return false; // Don't start animation loop
+    buffers.forEach(buffer => buffer.delete());
   }
 });
 

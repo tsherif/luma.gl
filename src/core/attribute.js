@@ -1,7 +1,6 @@
 /* eslint-disable complexity */
-import assert from '../utils/assert';
-import {Buffer} from '../webgl';
 import GL from '../constants';
+import {Buffer} from '../webgl';
 
 export default class Attribute {
   constructor(gl, opts = {}) {
@@ -70,7 +69,7 @@ export default class Attribute {
 
     if (buffer) {
       this.externalBuffer = buffer;
-      this.type = buffer.type;
+      this.type = buffer.accessor.type;
     } else if (value) {
       this.externalBuffer = null;
       this.value = value;
@@ -82,7 +81,7 @@ export default class Attribute {
           type: this.type
         });
         this.buffer.setData({data: value});
-        this.type = this.buffer.type;
+        this.type = this.buffer.accessor.type;
       }
     }
   }
@@ -95,9 +94,11 @@ export default class Attribute {
   }
 
   _validateAttributeDefinition() {
-    assert(
-      this.size >= 1 && this.size <= 4,
-      `Attribute definition for ${this.id} invalid size`
-    );
+    // Can be undefined for buffers (auto deduced from shaders)
+    // or larger than 4 for uniform arrays
+    // assert(
+    //   this.size >= 1 && this.size <= 4,
+    //   `Attribute definition for ${this.id} invalid size`
+    // );
   }
 }

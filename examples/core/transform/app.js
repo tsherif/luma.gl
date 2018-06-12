@@ -267,8 +267,8 @@ const animationLoop = new AnimationLoop({
 
     transform.swapBuffers();
 
-    offsetBuffer.updateLayout({instanced: 1});
-    rotationBuffer.updateLayout({instanced: 1});
+    offsetBuffer.updateAccessor({instanced: 1});
+    rotationBuffer.updateAccessor({instanced: 1});
     /* eslint-disable camelcase */
     modelRender.draw({
       attributes: {
@@ -277,8 +277,8 @@ const animationLoop = new AnimationLoop({
       }
     });
     /* eslint-enable camelcase */
-    offsetBuffer.updateLayout({instanced: 0});
-    rotationBuffer.updateLayout({instanced: 0});
+    offsetBuffer.updateAccessor({instanced: 0});
+    rotationBuffer.updateAccessor({instanced: 0});
 
     currentSourceIdx = destinationIdx;
 
