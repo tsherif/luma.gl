@@ -70,16 +70,16 @@ export default class Attribute {
     if (buffer) {
       this.externalBuffer = buffer;
       this.type = buffer.accessor.type;
+      if (buffer.accessor.divisor !== undefined) {
+        this.instanced = buffer.accessor.divisor > 0;
+      }
     } else if (value) {
       this.externalBuffer = null;
       this.value = value;
 
       if (!isGeneric) {
         // Create buffer if needed
-        this.buffer = this.buffer || new Buffer(this.gl, {
-          target: this.target,
-          type: this.type
-        });
+        this.buffer = this.buffer || new Buffer(this.gl, {target: this.target, type: this.type});
         this.buffer.setData({data: value});
         this.type = this.buffer.accessor.type;
       }

@@ -90,6 +90,7 @@ export default class Program extends Resource {
   // This function unifies those into a single call with simple parameters
   // that have sane defaults.
   draw({
+    logPriority,
     drawMode = GL.TRIANGLES,
     vertexCount,
     offset = 0,
@@ -108,6 +109,29 @@ export default class Program extends Resource {
   }) {
     assert(vertexArray);
     // vertexArray = vertexArray || VertexArray.getDefaultArray(this.gl);
+
+    if (logPriority !== undefined) {
+      log.log(logPriority, `Draw: \
+mode=${drawMode} \
+verts=${vertexCount} \
+instances=${instanceCount}`)();
+    }
+
+    // drawMode = GL.TRIANGLES,
+    // vertexCount,
+    // offset = 0,
+    // start,
+    // end,
+    // isIndexed = false,
+    // indexType = GL.UNSIGNED_SHORT,
+    // isInstanced = false,
+    // instanceCount = 0,
+    // vertexArray = null,
+    // transformFeedback = null,
+    // framebuffer = null,
+    // uniforms = {},
+    // samplers = {},
+    // parameters = {}
 
     vertexArray.bind(() => {
 

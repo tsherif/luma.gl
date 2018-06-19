@@ -1,5 +1,6 @@
 // Contains metadata describing attribute configurations for a program's shaders
 // Much of this is automatically extracted from shaders after program linking
+import {isWebGL2} from '../webgl-utils';
 import {decomposeCompositeGLType} from '../webgl-utils/attribute-utils';
 import Accessor from './accessor';
 
@@ -32,9 +33,9 @@ export default class ProgramConfiguration {
   getVaryingInfo(locationOrName) {
     const location = Number(locationOrName);
     if (Number.isFinite(location)) {
-      return this.varying[location];
+      return this.varyings[location];
     }
-    return this.varyingByName[locationOrName] || null;
+    return this.varyingsByName[locationOrName] || null;
   }
 
   getVaryingIndex(locationOrName) {
@@ -83,6 +84,10 @@ export default class ProgramConfiguration {
   // linkProgram needs to have been called, although linking does not need to have been successful
   _readVaryingsFromProgram(program) {
     const {gl} = program;
+    if (!isWebGL2(gl)) {
+      return;
+    }
+
     const count = gl.getProgramParameter(program.handle, gl.TRANSFORM_FEEDBACK_VARYINGS);
     for (let location = 0; location < count; location++) {
       const {name, type, size} = gl.getTransformFeedbackVarying(program.handle, location);

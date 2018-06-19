@@ -1,4 +1,6 @@
+/* eslint-disable camelcase */
 /* global window */
+import 'luma.gl/debug';
 import {AnimationLoop, Buffer, setParameters, Model, pickModels, picking} from 'luma.gl';
 import {_Transform as Transform} from 'luma.gl';
 
@@ -196,9 +198,8 @@ const animationLoop = new AnimationLoop({
       type: gl.FLOAT
     });
 
-    /* eslint-disable camelcase  */
     const modelRender = new Model(gl, {
-      id: 'Model-Render',
+      id: 'RenderModel',
       vs: DRAW_VS,
       fs: DRAW_FS,
       drawMode: gl.TRIANGLE_FAN,
@@ -214,6 +215,7 @@ const animationLoop = new AnimationLoop({
     });
 
     const transform = new Transform(gl, {
+      id: 'TransformModel',
       sourceBuffers: {
         a_offset: offsetBuffer,
         a_rotation: rotationBuffer
@@ -226,7 +228,6 @@ const animationLoop = new AnimationLoop({
       },
       elementCount: NUM_INSTANCES
     });
-    /* eslint-enable camelcase  */
 
     setParameters(gl, {
       clearColor: [0.0, 0.0, 0.0, 1.0],
@@ -254,13 +255,18 @@ const animationLoop = new AnimationLoop({
     colorBuffer,
     transform,
     framebuffer,
-    useDevicePixels
+    useDevicePixels,
+    time
   }) {
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     const destinationIdx = (currentSourceIdx + 1) % 2;
 
-    transform.run();
+    transform.run({
+      uniforms: {
+        u_time: time
+      }
+    });
 
     const offsetBuffer = transform.getBuffer('v_offset');
     const rotationBuffer = transform.getBuffer('v_rotation');
@@ -269,14 +275,12 @@ const animationLoop = new AnimationLoop({
 
     offsetBuffer.updateAccessor({instanced: 1});
     rotationBuffer.updateAccessor({instanced: 1});
-    /* eslint-disable camelcase */
     modelRender.draw({
       attributes: {
         a_offset: offsetBuffer,
         a_rotation: rotationBuffer
       }
     });
-    /* eslint-enable camelcase */
     offsetBuffer.updateAccessor({instanced: 0});
     rotationBuffer.updateAccessor({instanced: 0});
 

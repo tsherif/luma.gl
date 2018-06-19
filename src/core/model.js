@@ -336,7 +336,7 @@ export default class Model extends Object3D {
     // this.vertexArray.setAttributes(this._attributes);
     // this.vertexArray.checkAttributeBindings();
 
-    this._logAttributesAndUniforms(2, this.vertexArray, this.uniforms, framebuffer);
+    const logPriority = this._logDrawCallStart(2);
 
     this.onBeforeRender();
 
@@ -351,6 +351,7 @@ export default class Model extends Object3D {
     this._timerQueryStart();
 
     this.program.draw(Object.assign(opts, {
+      logPriority,
       parameters,
       drawMode: this.getDrawMode(),
       vertexCount: this.getVertexCount(),
@@ -367,6 +368,8 @@ export default class Model extends Object3D {
     this.onAfterRender();
 
     this.setNeedsRedraw(false);
+
+    this._logDrawCallEnd(logPriority, this.vertexArray, this.uniforms, framebuffer);
 
     return this;
   }
@@ -514,16 +517,21 @@ count: ${this.stats.profileFrameCount}`
     return buffers;
   }
 
-  _logAttributesAndUniforms(priority, vertexArray, uniforms, framebuffer) {
+  _logDrawCallStart(priority) {
     if (log.priority < priority || (Date.now() - this.lastLogTime < 5000)) {
-      return;
+      return undefined;
     }
 
     this.lastLogTime = Date.now();
 
     log.group(LOG_DRAW_PRIORITY, `>>> DRAWING MODEL ${this.id}`, {collapsed: log.priority <= 2})();
-    if (framebuffer) {
-      framebuffer.log({priority: LOG_DRAW_PRIORITY, message: `Rendered to ${framebuffer.id}`});
+
+    return priority;
+  }
+
+  _logDrawCallEnd(priority, vertexArray, uniforms, framebuffer) {
+    if (priority === undefined) {
+      return;
     }
 
     const attributeTable = vertexArray._getDebugTable({
@@ -556,6 +564,10 @@ count: ${this.stats.profileFrameCount}`
     }
 
     logModel(this, uniforms);
+
+    if (framebuffer) {
+      framebuffer.log({priority: LOG_DRAW_PRIORITY, message: `Rendered to ${framebuffer.id}`});
+    }
 
     log.groupEnd(LOG_DRAW_PRIORITY, `>>> DRAWING MODEL ${this.id}`)();
   }

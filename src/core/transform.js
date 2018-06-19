@@ -47,6 +47,7 @@ export default class Transform {
   }
 
   initialize({
+    id,
     sourceBuffers = null,
     destinationBuffers = null,
     vs = null,
@@ -66,25 +67,12 @@ export default class Transform {
       this._buffersSwapable = true;
     }
 
-    let index = 0;
-    this.varyings = [];
-    this.varyingMap = {};
-    for (const varying of varyings) {
-      this.varyings[index] = varying;
-      this.varyingMap[varying] = index;
-      index++;
-    }
-
     this._bindBuffers({sourceBuffers, destinationBuffers});
-    this._buildModel({vs, drawMode, elementCount});
+    this._buildModel({id, vs, varyings, drawMode, elementCount});
   }
 
   // Update some or all buffer bindings.
-  update({
-    sourceBuffers = null,
-    destinationBuffers = null,
-    elementCount = this.elementCount
-  }) {
+  update({sourceBuffers = null, destinationBuffers = null, elementCount = this.elementCount}) {
     if (!sourceBuffers && !destinationBuffers) {
       log.warn('Transform : no buffers updated')();
       return this;
@@ -118,7 +106,7 @@ export default class Transform {
     return this;
   }
 
-  // Run one transformfeedback loop.
+  // Run one transform feedback loop.
   run({uniforms = {}} = {}) {
     const {model, transformFeedbacks, sourceBuffers, currentIndex} = this;
     model.setAttributes(sourceBuffers[currentIndex]);
@@ -178,7 +166,7 @@ export default class Transform {
   }
 
   // build Model and TransformFeedback objects
-  _buildModel({vs, drawMode, elementCount}) {
+  _buildModel({id, vs, varyings, drawMode, elementCount}) {
     // Append matching version string to the fragment shader to ensure compilation succeeds
     // TODO - is this still needed now that we have shader transpilatio?
     let fs = EMPTY_FS;
@@ -188,22 +176,23 @@ export default class Transform {
     }
 
     this.model = new Model(this.gl, {
+      id: id || 'transform',
       vs,
       fs,
-      varyings: this.varyings,
+      varyings,
       drawMode,
       vertexCount: elementCount
     });
 
     this.transformFeedbacks[0] = new TransformFeedback(this.gl, {
-      buffers: this.destinationBuffers[0],
-      varyingMap: this.varyingMap
+      program: this.model.program,
+      buffers: this.destinationBuffers[0]
     });
 
     if (this._buffersSwapable) {
       this.transformFeedbacks[1] = new TransformFeedback(this.gl, {
-        buffers: this.destinationBuffers[1],
-        varyingMap: this.varyingMap
+        program: this.model.program,
+        buffers: this.destinationBuffers[1]
       });
     }
   }

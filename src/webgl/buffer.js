@@ -123,7 +123,7 @@ export default class Buffer extends Resource {
   getData({dstData = null, srcByteOffset = 0, dstOffset = 0, length = 0} = {}) {
     assertWebGL2Context(this.gl);
 
-    const ArrayType = getTypedArrayFromGLType(this.accessor.type, {clamped: false});
+    const ArrayType = getTypedArrayFromGLType(this.accessor.type || GL.FLOAT, {clamped: false});
     const sourceAvailableElementCount = this._getAvailableElementCount(srcByteOffset);
     let dstAvailableElementCount;
     let dstElementCount;
@@ -167,7 +167,9 @@ export default class Buffer extends Resource {
    *   - GL.UNIFORM_BUFFER: `size` must be a minimum of GL.UNIFORM_BLOCK_SIZE_DATA.
    * @returns {Buffer} - Returns itself for chaining.
    */
-  bind({target = this.target, index = this.index, offset = 0, size} = {}) {
+  bind({
+    target = this.target, index = this.accessor && this.accessor.index, offset = 0, size
+  } = {}) {
     // NOTE: While GL.TRANSFORM_FEEDBACK_BUFFER and GL.UNIFORM_BUFFER could
     // be used as direct binding points, they will not affect transform feedback or
     // uniform buffer state. Instead indexed bindings need to be made.
@@ -194,7 +196,7 @@ export default class Buffer extends Resource {
     return this;
   }
 
-  unbind({target = this.target, index = this.index} = {}) {
+  unbind({target = this.target, index = this.accessor && this.accessor.index} = {}) {
     const isIndexedBuffer = target === GL.UNIFORM_BUFFER || target === GL.TRANSFORM_FEEDBACK_BUFFER;
     if (isIndexedBuffer) {
       this.gl.bindBufferBase(target, index, null);
@@ -237,7 +239,7 @@ export default class Buffer extends Resource {
   }
 
   _getAvailableElementCount(srcByteOffset) {
-    const ArrayType = getTypedArrayFromGLType(this.accessor.type, {clamped: false});
+    const ArrayType = getTypedArrayFromGLType(this.accessor.type || GL.FLOAT, {clamped: false});
     const sourceElementCount = this.bytes / ArrayType.BYTES_PER_ELEMENT;
     const sourceElementOffset = srcByteOffset / ArrayType.BYTES_PER_ELEMENT;
     return sourceElementCount - sourceElementOffset;
