@@ -1,4 +1,4 @@
-# UniformBufferLayout
+# UniformBufferLayout (WebGL2)
 
 A helper class that lets the application describe the contents of a uniform block and then perform `setUniforms({uniform: value})` calls on it, manipulating individual values without concern for memory layout requirements.
 
@@ -40,14 +40,14 @@ Updating your actual uniform buffer
 ```js
 const layout = ...
 layout.setValues({...})
-buffer.setData({data: layout.getData()})
+buffer.subData({data: layout.getData()})
 ```
 
 Updating a minimal part of the actual uniform buffer
 
 ```js
 const {data, offset} = layout.getSubData();
-buffer.setData({data, offset})
+buffer.subData({data, offset})
 ```
 
 Binding your uniform buffer

@@ -5,18 +5,6 @@ A `Buffer` is a WebGL object that stores an chunk of memory allocated by the GPU
 For additional information, see [OpenGL Wiki](https://www.khronos.org/opengl/wiki/Buffer_Object).
 
 
-## Buffer Methods
-
-| **Method** | **Description** |
-| --- | --- |
-| `constructor` | Creates a Buffer|
-| `initialize` | Allocates and optionally initializes the buffer object's data store on GPU. |
-| `delete` | Destroys buffer |
-| `subData` | Updates a subset of a buffer object's data store. |
-| `copyData` (WebGL2) | Copies part of the data of another buffer into this buffer |
-| `getData` (WebGL2) | Reads data from buffer (GPU) into an `ArrayBufferView` or `SharedArrayBuffer`.|
-
-
 ## Usage
 
 ```js
@@ -114,9 +102,9 @@ Note: buffer binding and unbinding is handled internal by luma.gl methods so the
 * `handle` - holds the underlying `WebGLBuffer`
 
 
-## Methods
+## Constructor
 
-### constructor
+### Buffer(gl : WebGLRenderingContext, props : Object)
 
 Creates a new `Buffer`, which will either be a an "element" buffer used for storing vertex indices, or a generic buffer. To create an element buffer, specify `target: GL.ELEMENT_ARRAY_BUFFER`. If target is not specified, it will be a generic buffer that can be used in a variety of situations.
 
@@ -133,7 +121,9 @@ Note:
 * In WebGL1, the default is `GL.ARRAY_BUFFER` which will work as a generic buffer.
 * In WebGL2, the default is `GL.COPY_READ_BUFFER` which means the buffer can work either as a generic buffer and an element buffer. This will be determined when it is first used (bound). From that point on, WebGL will consider it either as an element buffer or a generic buffer.
 
-### initialize
+## Methods
+
+### initialize(props : Object) : Buffer
 
 Allocates and optionally initializes buffer memory/data store (releasing any previously allocated memory).
 
@@ -150,13 +140,10 @@ Buffer.initialize({data, bytes, usage=, dataType=, size=, ...layoutOptions})
 * `size`=`1` (GLuint) - number of components per vertex, e.g. a `vec2` has 2 components.
 * `...layoutOptions` -  parameters passed to `setLayout`
 
-Returns itself for chaining.
 
-### setLayout
+### updateAccessor(accessor : Object) : Buffer
 
-Allows you to optionally describe the layout of the data in the buffer. This does not affect the buffer itself, but enables you can to avoid having to supply this data again (You might use it as an attribute later, see `VertexArray`).
-
-`Buffer.setLayout({bytes, usage=, dataType=, size=, type=})`
+Allows you to optionally describe the layout of the data in the buffer. This does not affect the buffer itself, but if supplied can avoid having to supply this data again (for instance if you use this buffer as an attribute later, see `VertexArray`).
 
 * `type`= type of the data being stored in the buffer. Usually not needed, when inferred by the typed array supplied as `data`.
 * `size`=`1` (*number*, optional) - The number of components in each element the buffer (typically 1-4).
@@ -167,9 +154,11 @@ Allows you to optionally describe the layout of the data in the buffer. This doe
 * `stride`=`0` (*number*, optional) - the `stride` represents an additional offset between each element in the buffer.
 
 Notes:
+* `type` and `size` values for attributes are read from the shaders when a program is created and linked, and normally do not need to be supplied. Also any attribute with `instance` in its name will automatically be given an instance divisor of `1`.
 * `offset` and `stride` are typically used to interleave data in buffers.
 
-### subData
+
+### subData({data , offset=, srcOffset=, length=}) : Buffer
 
 Updates part or all of a buffer's allocated memory.
 
@@ -180,9 +169,8 @@ Updates part or all of a buffer's allocated memory.
 * `srcOffset`=`0` -  WebGL2: Offset into srcData
 * `length` - WebGL2: Number of bytes to be copied
 
-Returns itself for chaining.
 
-### copyData (WEBGL2)
+### copyData(opts : Object) : Buffer (WEBGL2)
 
 Copies part of the data of another buffer into this buffer. The copy happens on the GPU and is expected to be efficient.
 
@@ -193,15 +181,13 @@ Copies part of the data of another buffer into this buffer. The copy happens on 
 * `writeOffset`=`0` (GLint) - byte offset from which to start writing to the buffer.
 * `size` (GLsizei) - byte count, specifying the size of the data to be copied.
 
-Returns itself for chaining.
-
 Note:
 * `readOffset`, `writeOffset` and `size` must all be greater than or equal to zero.
 * `readOffset + sizereadOffset + size` must not exceeed the size of the source buffer object
 * `writeOffset + sizewriteOffset + size` must not exceeed the size of the buffer bound to writeTarget.
 * If the source and destination are the same buffer object, then the source and destination ranges must not overlap.
 
-### getData (WEBGL2)
+### getData() : TypedArray (WEBGL2)
 
 Reads data from buffer into an `ArrayBufferView` or `SharedArrayBuffer`.
 
@@ -213,6 +199,10 @@ Reads data from buffer into an `ArrayBufferView` or `SharedArrayBuffer`.
 * `length`=`0` (GLuint)  Optional, Element count to be copied, optimal value calculated when not provided.
 
 Returns a typed array containing the data from the buffer (if `dstData` was supplied it will be returned, otherwise this will be a freshly allocated array).
+
+### getElementCount() : Int
+
+Returns number of elements in the buffer. In a buffer created with Float32Array typed array, each float is an element and takes 4 bytes (or 32 bits).
 
 
 ## Types

@@ -1,20 +1,101 @@
 # What's New
 
-In addition to these notes, always check the [Upgrade Guide](/docs/upgrade-guide.md) when considering adopting a new release.
+## Version 6.0
+
+Date: Target July 20, 2018
+
+<table style="border: 0;" align="center">
+  <tbody>
+    <tr>
+      <td>
+        <img height=150 src="https://raw.github.com/uber-common/deck.gl-data/master/images/whats-new/webgl2.jpg" />
+        <p><i>WebGL Improvements</i></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+A major release that as always focuses on WebGL performance and code size optimizations, better support for shader/GLSL programming, improved documentation and API cleanup.
+
+
+## WebGL Improvements
+
+### Attribute Management Optimizations
+
+`VertexArray` objects are now used for all attribute management in luma.gl, resulting in improved performance and a simpler, more consistent API. The `Program` and `Model` class APIs have been updated to use `VertexArray`.
+
+### Buffer Memory Optimizations
+
+The `Buffer` class no longer holds on to the complete JavaScript typed arrays used during initialization. This can lead to significant memory savings in apps that use multiple large GPU buffers initialized from typed arrays. Also for convenience a new method `getElementCount` is added that returns number elements based on its size and type.
+
+### Transform Feedback Improvements
+
+A new method `Model.transform` makes it easier to run basic transform feedback operations, when the full power of the new `Transform` class (see below) is not needed.
+
+
+### Transform class (WebGL2)
+
+[`Transform`](/docs/api-reference/core/transform.md) is now an officially supported luma.gl class. This new class provides an easy-to-use interface to Transform Feedback. This class hides complexity by internally creating and managing the supporing WebGL objects that are necessary to perform Transform Feedback operations.
+
+
+## Shader Module System Improvements
+
+### GLSL Transpilation
+
+The shader assembler now transforms shader code to the GLSL version specified by the top-level shader. GLSL 3.00 ES shader code is transparently transformed into GLSL 1.00 ES compatible code when needed, and vice versa. This allows application to write shader code in the modern GLSL version available (3.00 ES) and still run it under WebGL1 - Shader "transpilation" will automatically convert shader module source code syntax to the target version (assuming that no WebGL2 only features were used).
+
+
+### Shader Code Injection
+
+A new shader injection system allows applications to inject additional code into existing shaders. In many cases, this can avoid the need to copy (or "fork") large and complicated existing shaders just to add a few lines of code.
+
+Shader injection can be used to "inject" new shader modules into an existing shader. Adding a shader module to the modules list automatically "prepends" the shader module functions to the beginning of your main shader code, but using a shader module still typically requires adding one or two lines of code each to the main functions in the vertex and fragment shaders. In many cases, the new shader injection feature allows this be done without copying the original shaders.
+
+
+### Shader Modules now support GLSL 3.00 ES
+
+All shader modules are now written in GLSL 3.00 syntax, and leverage the new GLSL transpilation feature to be compatible with both GLSL 3.00 ES and GLSL 1.00 ES main shaders. Care is taken to avoid using GLSL 3.00 specific features whenever possible, and exceptions will be clearly documented.
+
+
+## Documentation
+
+### Developer's Guide
+
+luma.gl now has a more extensive Developer's Guide covering more areas of the API, including a new developer guide for shader programming, with sections about writing shaders and the shader module system. Content includes:
+
+- Guidelines for writing shaders that work in both GLSL 3.00 ES and GLSL 1.00 ES
+- A new GLSL language reference page describing both GLSL 3.00 ES and GLSL 1.00 ES (as well as what has changed between them) in a single place.
+
+
+## API Cleanup
+
+Being a major release, in v6.0 we took the opportunity to clean up the luma.gl API.
+
+
+### Removal of Deprecated/Unused Methods
+
+To keep reducing application bundle size, a number of methods have been removed from the luma.gl API. Methods that were deprecated in previous releases have now been removed, and in additional a number of rarely used methods have also been dropped (in most cases, the dropped functionality is still accessible using raw WebGL calls).
+
+### Renamed Methods
+
+In a few cases, methods have been renamed after API Audits, usually to improve API consistency. The details are listed in the Upgrade Guide. In most cases, running your pre-v6 application on v6 should generate messages in the console when old method calls are encountered, and you should be able to quickly address any changes one-by-one by referring to the Upgrade Guide.
+
+
 
 ## Version 5.3
 
-Date: June 01, 2018
+Date: June 1, 2018
 
-5.3 release contains documentation improvements and some minor changes to experimental [`Transform`](/docs/api-reference/core/experimental/transform.md) class.
+A minor release with bug fixes and internal improvements.
+
 
 ## Version 5.2
 
-Date: May 24, 2018
+Date: Apr 24, 2018
 
-## Transform class (New, WebGL2) (Experimental)
+## Transform class (WebGL2, Experimental)
 
-The new experimental [`Transform`](/docs/api-reference/core/experimental/transform.md) class provides an easy-to-use interface to perform Transform Feedback operations.
+The new experimental [`Transform`](/docs/api-reference/core/transform.md) class provides an easy-to-use interface to perform Transform Feedback operations.
 
 
 ## Framebuffer Class
