@@ -516,8 +516,16 @@ export const DOC_PAGES = [
         content: 'api-reference/shadertools/assemble-shaders.md'
       },
       {
-        name: 'Shader Module:picking',
-        content: 'api-reference/shadertools/shader-module-picking.md'
+        name: 'picking (Shader Module)',
+        content: 'api-reference/shadermodules/picking.md'
+      },
+      {
+        name: 'fp32 (Shader Module)',
+        content: 'api-reference/shadermodules/fp32.md'
+      },
+      {
+        name: 'fp64 (Shader Module)',
+        content: 'api-reference/shadermodules/fp64.md'
       },
       {
         name: 'GLSL Reference',
