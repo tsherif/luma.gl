@@ -36,7 +36,7 @@ const EPSILON = 1e-5;
 // Random floats
 const TEST_DATA = [1e-4, 1e+4, 1e-6, 1.264, 100.54, -321.4872, 0, -0.231, 0.8082];
 
-test('pack#floatToRGBA8tofloat)', t => {
+test('pack#floatToRGBA8tofloatGPU', t => {
   if (!Transform.isSupported(gl)) {
     t.comment('Transform not available, skipping tests');
     t.end();
@@ -83,6 +83,31 @@ test('pack#floatToRGBA8tofloat)', t => {
     }
   });
 
-  t.ok(true, 'Packing float to RGBA to float passed');
+  t.ok(true, 'Packing float to RGBA to float on GPU passed');
   t.end();
 });
+
+/* eslint-disable camelcase */
+test('pack#floatToRGBA8tofloatCPU', t => {
+  t.ok(test_CPUPacking({t, castToUint8: false}), 'Packing float to RGBA to float on CPU passed without casting to Uint8');
+  t.ok(test_CPUPacking({t, castToUint8: true}), 'Packing float to RGBA to float on CPU passed with casting to Uint8');
+  t.end();
+});
+
+function test_CPUPacking({t, castToUint8}) {
+  const inputData = new Float32Array(TEST_DATA);
+  const {pack_floatToRGBA8, pack_RGBA8ToFloat} = pack;
+  const outData = inputData.map(element => pack_RGBA8ToFloat(pack_floatToRGBA8(element, castToUint8)));
+  // t.equal(inputData.length, outData.length, 'Array lenth should match');
+  // inputData.forEach((element, index) => {
+  let testPassed = true;
+  for (let index = 0; index < inputData.length; index++) {
+    const diff = Math.abs(inputData[index] - outData[index]);
+    if (diff > EPSILON) {
+      t.comment(`Invalid data found at index: ${index} expected: ${inputData[index]} actual: ${outData[index]} diff: ${diff}`);
+      testPassed = false;
+    }
+  }
+  return testPassed;
+}
+/* eslint-enable camelcase */
