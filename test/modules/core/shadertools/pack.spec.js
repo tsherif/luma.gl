@@ -35,6 +35,9 @@ const EPSILON = 1e-5;
 
 // Random floats
 const TEST_DATA = [1e-4, 1e+4, 1e-6, 1.264, 100.54, -321.4872, 0, -0.231, 0.8082];
+const TEST_DATA_SMALL = [0.0123, 0.0000321, 0.5, 0.99921, 0.90032114, 1e-20, 1e-30, 1e-32, 1e-35];
+const TEST_DATA_BIG = [100.234567, 1000.234567, 100000.234567, 1e+20, 1e+30, 1e+32, 1e+35];
+
 
 test('pack#floatToRGBA8tofloatGPU', t => {
   if (!Transform.isSupported(gl)) {
@@ -94,10 +97,51 @@ test('pack#floatToRGBA8tofloatCPU', t => {
   t.end();
 });
 
-function test_CPUPacking({t, castToUint8}) {
-  const inputData = new Float32Array(TEST_DATA);
+test('pack#floatToRGBA8tofloatCPU (small floats)', t => {
+  t.ok(test_CPUPacking({t, castToUint8: false, testData: TEST_DATA_SMALL}), 'Packing float to RGBA to float on CPU passed without casting to Uint8');
+  t.ok(test_CPUPacking({t, castToUint8: true, testData: TEST_DATA_SMALL}), 'Packing float to RGBA to float on CPU passed with casting to Uint8');
+  t.end();
+});
+
+test('pack#floatToRGBA8tofloatCPU (big floats)', t => {
+  t.ok(test_CPUPacking({t, castToUint8: false, testData: TEST_DATA_BIG}), 'Packing float to RGBA to float on CPU passed without casting to Uint8');
+  t.ok(test_CPUPacking({t, castToUint8: true, testData: TEST_DATA_BIG}), 'Packing float to RGBA to float on CPU passed with casting to Uint8');
+  t.end();
+});
+
+function test_CPUPacking({t, castToUint8, testData = TEST_DATA}) {
+  const inputData = new Float32Array(testData);
   const {pack_floatToRGBA8, pack_RGBA8ToFloat} = pack;
   const outData = inputData.map(element => pack_RGBA8ToFloat(pack_floatToRGBA8(element, castToUint8)));
+  // t.equal(inputData.length, outData.length, 'Array lenth should match');
+  // inputData.forEach((element, index) => {
+  let testPassed = true;
+  for (let index = 0; index < inputData.length; index++) {
+    const diff = Math.abs(inputData[index] - outData[index]);
+    if (diff > EPSILON) {
+      t.comment(`Invalid data found at index: ${index} expected: ${inputData[index]} actual: ${outData[index]} diff: ${diff}`);
+      testPassed = false;
+    }
+  }
+  return testPassed;
+}
+
+test('pack#floatToRGBA8tofloatCPU V2 (small floats)', t => {
+  t.ok(test_CPUPacking_V2({t, castToUint8: false, testData: TEST_DATA_SMALL}), 'Packing float to RGBA to float on CPU passed without casting to Uint8');
+  t.ok(test_CPUPacking_V2({t, castToUint8: true, testData: TEST_DATA_SMALL}), 'Packing float to RGBA to float on CPU passed with casting to Uint8');
+  t.end();
+});
+
+test('pack#floatToRGBA8tofloatCPU V2 (big floats)', t => {
+  t.ok(test_CPUPacking_V2({t, castToUint8: false, testData: TEST_DATA_BIG}), 'Packing float to RGBA to float on CPU passed without casting to Uint8');
+  t.ok(test_CPUPacking_V2({t, castToUint8: true, testData: TEST_DATA_BIG}), 'Packing float to RGBA to float on CPU passed with casting to Uint8');
+  t.end();
+});
+
+function test_CPUPacking_V2({t, castToUint8, testData = TEST_DATA}) {
+  const inputData = new Float32Array(testData);
+  const {pack_floatToRGBA8_V2, pack_RGBA8ToFloat_V2} = pack;
+  const outData = inputData.map(element => pack_RGBA8ToFloat_V2(pack_floatToRGBA8_V2(element, castToUint8)));
   // t.equal(inputData.length, outData.length, 'Array lenth should match');
   // inputData.forEach((element, index) => {
   let testPassed = true;
