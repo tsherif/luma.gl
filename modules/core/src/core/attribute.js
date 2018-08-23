@@ -53,9 +53,9 @@ export default class Attribute {
       this.constant = false;
 
       this.type = buffer.accessor.type;
-      if (buffer.accessor.divisor !== undefined) {
-        this.instanced = buffer.accessor.divisor > 0;
-      }
+      // if (buffer.accessor.divisor !== undefined) {
+      //   this.instanced = buffer.accessor.divisor > 0;
+      // }
     } else if (value) {
       this.externalBuffer = null;
       this.value = value;
