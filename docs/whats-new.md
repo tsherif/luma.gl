@@ -1,8 +1,51 @@
 # What's New
 
+
+## Version 6.1
+
+Date: September 6, 2018
+
+<table style="border: 0;" align="center">
+  <tbody>
+    <tr>
+      <td>
+        <img height=150 src="https://raw.github.com/uber-common/deck.gl-data/master/images/whats-new/luma61-ssao-pass-thumb.gif" />
+        <p><i>Ambient Occlusion Render Pass</i></p>
+      </td>
+      <td>
+        <img height=150 src="https://raw.github.com/uber-common/deck.gl-data/master/images/whats-new/luma61-edge-pass-thumb.gif" />
+        <p><i>Edge Detection Render Pass</i></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+luma.gl 6.1 is a minor release that introduces a number of new experimental capabilities that are expected to be built out and become official over the next few releases.
+
+
+### New Multipass Rendering System (Experimental)
+
+luma.gl now provides a composable multipass rendering framework, based on a `MultiPassRenderer` class that accepts a list of render passes.
+
+
+### Post-Processing Effects (Experimental)
+
+A number of classic WebGL/OpenGL post processing effects have been ported to luma.gl and packaged as composable render passes. For maxiumum flexibility, many of the underlying shaders have also been exposed as shader modules, allowing filtering features to be used either directly in existing shaders or applied as a post-processing filter.
+
+
+### New loaders.gl Submodule (Experimental)
+
+A selection of open source 3D loaders have been ported to a new submodule `loaders.gl`. Initial focus is on point cloud loaders (PLY, LAZ, PCD), although a geospatial loader (KML) is also included. In addition it contains both read and write support for GLB (the glTF binary container format).
+
+
+### Transform Class now supports Shader Modules
+
+The `Transform` class now accepts shader module parameters (such as `modules`, `dependencies` and `inject`, see [assembleShaders](/docs/api-reference/shadertools/assemble-shaders.md)), enabling the use of shader modules in transform feedback operations.
+
+
 ## Version 6.0
 
-Date: Target July 20, 2018
+Date: July 18, 2018
 
 <table style="border: 0;" align="center">
   <tbody>
