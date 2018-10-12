@@ -1,9 +1,38 @@
 # What's New
 
+## Version 6.2
+
+Date: Target October 10, 2018
+
+<table style="border: 0;" align="center">
+  <tbody>
+    <tr>
+      <td>
+        <img height=150 src="https://raw.github.com/uber-common/deck.gl-data/master/images/whats-new/render-pass.gif" />
+        <p><i>glfx port using ShaderModulePass</i></p>
+      </td>
+      <td>
+        <img height=150 src="https://raw.github.com/uber-common/deck.gl-data/master/images/whats-new/transform-texture.gif" />
+        <p><i>Transform: edge detection</i></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+Mini release to add
+
+### ShaderModulePass (Experimental)
+
+Shader modules that expose "standard" filtering and sampling functions can be given extra metadata (the `passes` field) enabling easy construction of a `ShaderModulePass`. Look for `ShaderPass` badges in the documentation of shader modules.
+
+### Transform Texture support (Experimental)
+
+`Transform` class was introduced in 6.0 provides easy API to perform WebGL's complicated `TransformFeedback`. We are now extending this class to provide same easy API to read and write into textures. Running image filters, performing offline rendering and custom texture mip-map generation are some of the use-cases. Moreover, texture and buffer access can be combined, i.e. using single `Transform` instance buffers can be captured using `TransformFeedback` and data can be propagated beyond vertex shader to generate a texture.
+
 
 ## Version 6.1
 
-Date: September 6, 2018
+Date: Target August 31, 2018
 
 <table style="border: 0;" align="center">
   <tbody>
@@ -41,6 +70,11 @@ A selection of open source 3D loaders have been ported to a new submodule `loade
 ### Transform Class now supports Shader Modules
 
 The `Transform` class now accepts shader module parameters (such as `modules`, `dependencies` and `inject`, see [assembleShaders](/docs/api-reference/shadertools/assemble-shaders.md)), enabling the use of shader modules in transform feedback operations.
+
+
+### Documentation Search
+
+luma.gl is now using the [ocular](https://github.com/uber-web/ocular) document generator to build its website, which among other things enables search.
 
 
 ## Version 6.0
@@ -219,7 +253,7 @@ Improvements in particular to the `Buffer`, `TransformFeedback` and `Framebuffer
 ### Shader Modules
 
 * `fp64` - fp64 module works under more platforms/GPUs/drivers
-* [`picking`](/docs/api-reference/shadertools/shadertools-picking.md) shader module is moved from deck.gl to luma.gl and has been enhanced to also support object highlighting.
+* [`picking`](/docs/api-reference/shadertools/shader-module-picking.md) shader module is moved from deck.gl to luma.gl and has been enhanced to also support object highlighting.
 
 
 
