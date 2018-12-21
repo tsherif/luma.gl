@@ -40,7 +40,7 @@ uniform sampler2D uSampler;
 
 void main(void) {
   vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-  gl_FragColor = vec4(textureColor.rgb, 1.0);
+  gl_FragColor = textureColor; // vec4(textureColor.rgb, 1.0);
 }
 `;
 
@@ -151,6 +151,7 @@ const animationLoop = new AnimationLoop({
           [GL.TEXTURE_MAG_FILTER]: GL.LINEAR
         }
       });
+      console.log(`CREATING TEXTURE WITH DATA`);
 
       // create a texture and call setImageData
 
@@ -164,9 +165,10 @@ const animationLoop = new AnimationLoop({
       //   }
       // });
       // texture.setImageData({
-      //   pixels: canvas,
+      //   pixels: data,
       //   parameters: { [GL.UNPACK_FLIP_Y_WEBGL]: true}
       // });
+      // console.log(`CREATING TEXTURE AND USING SETIMAGEDATA`);
 
       const texWidth = texture.width;
       const texHeight = texture.height;
