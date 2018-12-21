@@ -2,7 +2,7 @@
   Test app to verify a texture contents, takes a texture and maps each pixel to a grid cell.
 */
 
-import {AnimationLoop, Model, Texture2D, Buffer, setParameters, _getHistoPyramid as getHistoPyramid} from 'luma.gl';
+import {AnimationLoop, Model, Texture2D, Buffer, setParameters, loadImages, _getHistoPyramid as getHistoPyramid} from 'luma.gl';
 import GL from '@luma.gl/constants';
 
 const INFO_HTML = `
@@ -67,57 +67,57 @@ function generateOffsetsForGrid(windowSize, cellSize) {
   return offsets;
 }
 
-function getTextureToDisplay(gl) {
-
-  // const texWidth = 4;
-  // const texHeight = 4;
-  // const textureData = new Float32Array([
-  //   3, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,
-  //   0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,
-  //   0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  3, 0, 0, 0,
-  //   0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0
-  // ]).map(x => x / 10);
-
-  const texWidth = 32;
-  const texHeight = 32;
-  const pixelCount = texWidth * texHeight;
-  const textureData = new Float32Array(pixelCount * 4);
-  for (let i = 0; i < pixelCount; i++) {
-    // textureData[i * 4] = Math.random() / 50;
-
-    const channel = Math.random() * 3.0;
-    if (channel > 2) {
-      textureData[i * 4] = Math.random() / 20;
-    } else if (channel > 1) {
-      textureData[i * 4 + 1] = Math.random() / 20;
-    } else {
-      textureData[i * 4 + 2] = Math.random() / 20;
-    }
-  }
-
-  const texture = new Texture2D(gl, {
-    data: textureData,
-    format: GL.RGBA32F,
-    type: GL.FLOAT,
-    border: 0,
-    mipmaps: false,
-    parameters: {
-      [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
-      [GL.TEXTURE_MIN_FILTER]: GL.NEAREST
-    },
-    pixelStore: {
-      [GL.UNPACK_FLIP_Y_WEBGL]: false
-    },
-    dataFormat: GL.RGBA,
-    width: texWidth,
-    height: texHeight,
-  });
-
-  const hpResults = getHistoPyramid(gl, {texture});
-  // return hpResults.pyramidTextures[2];
-  return hpResults.flatPyramidTexture;
-  // return texture;
-}
+// function getTextureToDisplay(gl) {
+//
+//   // const texWidth = 4;
+//   // const texHeight = 4;
+//   // const textureData = new Float32Array([
+//   //   3, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,
+//   //   0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,
+//   //   0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  3, 0, 0, 0,
+//   //   0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0
+//   // ]).map(x => x / 10);
+//
+//   const texWidth = 32;
+//   const texHeight = 32;
+//   const pixelCount = texWidth * texHeight;
+//   const textureData = new Float32Array(pixelCount * 4);
+//   for (let i = 0; i < pixelCount; i++) {
+//     // textureData[i * 4] = Math.random() / 50;
+//
+//     const channel = Math.random() * 3.0;
+//     if (channel > 2) {
+//       textureData[i * 4] = Math.random() / 20;
+//     } else if (channel > 1) {
+//       textureData[i * 4 + 1] = Math.random() / 20;
+//     } else {
+//       textureData[i * 4 + 2] = Math.random() / 20;
+//     }
+//   }
+//
+//   const texture = new Texture2D(gl, {
+//     data: textureData,
+//     format: GL.RGBA32F,
+//     type: GL.FLOAT,
+//     border: 0,
+//     mipmaps: false,
+//     parameters: {
+//       [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
+//       [GL.TEXTURE_MIN_FILTER]: GL.NEAREST
+//     },
+//     pixelStore: {
+//       [GL.UNPACK_FLIP_Y_WEBGL]: false
+//     },
+//     dataFormat: GL.RGBA,
+//     width: texWidth,
+//     height: texHeight,
+//   });
+//
+//   const hpResults = getHistoPyramid(gl, {texture});
+//   // return hpResults.pyramidTextures[2];
+//   return hpResults.flatPyramidTexture;
+//   // return texture;
+// }
 
 const animationLoop = new AnimationLoop({
   debug: true,
@@ -130,40 +130,82 @@ const animationLoop = new AnimationLoop({
       depthFunc: gl.LEQUAL
     });
 
-    const texture = getTextureToDisplay(gl);
-    const texWidth = texture.width;
-    const texHeight = texture.height;
+    const iconAtlas = './icon-atlas-128.png';
 
-    const cellSize = 3;
-    const windowSize = [texWidth * cellSize, texHeight * cellSize];
-    const gridSize = [texWidth, texHeight];
+    return loadImages({urls: [iconAtlas]}).then(([data]) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.height = 128;
+      canvas.width = 256;
+      ctx.drawImage(data, 0, 0);
+
+      // create a texture by using Texture2D constructor
+
+      const texture = new Texture2D(gl, {
+        id: 'texture-sync',
+        pixels: data,
+        width: 256,
+        height: 128,
+        parameters: {
+          [GL.TEXTURE_MIN_FILTER]: GL.LINEAR_MIPMAP_LINEAR,
+          [GL.TEXTURE_MAG_FILTER]: GL.LINEAR
+        }
+      });
+
+      // create a texture and call setImageData
+
+      // const texture = new Texture2D(gl, {
+      //   id: 'texture-sync',
+      //   width: 256,
+      //   height: 128,
+      //   parameters: {
+      //     [GL.TEXTURE_MIN_FILTER]: GL.LINEAR_MIPMAP_LINEAR,
+      //     [GL.TEXTURE_MAG_FILTER]: GL.LINEAR
+      //   }
+      // });
+      // texture.setImageData({
+      //   pixels: canvas,
+      //   parameters: { [GL.UNPACK_FLIP_Y_WEBGL]: true}
+      // });
+
+      const texWidth = texture.width;
+      const texHeight = texture.height;
+
+      const cellSize = 3;
+      const windowSize = [texWidth * cellSize, texHeight * cellSize];
+      const gridSize = [texWidth, texHeight];
 
 
-    const gridVertices = generateTriangleVerticesInRect([0, 0], [cellSize, cellSize]);
-    const gridPositions = new Buffer(gl, {size: 2, data: new Float32Array(gridVertices)});
+      const gridVertices = generateTriangleVerticesInRect([0, 0], [cellSize, cellSize]);
+      const gridPositions = new Buffer(gl, {size: 2, data: new Float32Array(gridVertices)});
 
-    const gridOffsetsData = generateOffsetsForGrid(windowSize, [cellSize, cellSize]);
-    const gridOffsets = new Buffer(gl, {size: 2, data: new Float32Array(gridOffsetsData), instanced: 1});
+      const gridOffsetsData = generateOffsetsForGrid(windowSize, [cellSize, cellSize]);
+      const gridOffsets = new Buffer(gl, {size: 2, data: new Float32Array(gridOffsetsData), instanced: 1});
 
-    const girdTexRenderModel = new Model(gl, {
-      id: 'GridTexture-Render- Model',
-      vs: VERTEX_SHADER,
-      fs: FRAGMENT_SHADER,
-      attributes: {
-        positions: gridPositions,
-        offsets: gridOffsets
-      },
-      uniforms: {
-        windowSize,
-        cellSize,
-        gridSize
-      },
-      isInstanced: 1,
-      instanceCount: gridOffsetsData.length / 2,
-      vertexCount: 4,
-      drawMode: GL.TRIANGLE_STRIP
+      const girdTexRenderModel = new Model(gl, {
+        id: 'GridTexture-Render-Model',
+        vs: VERTEX_SHADER,
+        fs: FRAGMENT_SHADER,
+        attributes: {
+          positions: gridPositions,
+          offsets: gridOffsets
+        },
+        uniforms: {
+          windowSize,
+          cellSize,
+          gridSize
+        },
+        isInstanced: 1,
+        instanceCount: gridOffsetsData.length / 2,
+        vertexCount: 4,
+        drawMode: GL.TRIANGLE_STRIP
+      });
+
+      return {texture, girdTexRenderModel};
     });
+  },
 
+  onRender({gl, girdTexRenderModel, texture}) {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     girdTexRenderModel.draw({
       uniforms: {
@@ -173,7 +215,6 @@ const animationLoop = new AnimationLoop({
         blend: false
       }
     });
-
   }
 });
 
