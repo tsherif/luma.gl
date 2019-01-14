@@ -18,28 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-const path = require('path');
+require('tap-browser-color')();
 
-const ALIASES = {
-  'luma.gl/test': path.resolve(__dirname, './test'),
-  'luma.gl/constants': path.resolve(__dirname, './modules/core/constants'),
-  'luma.gl': path.resolve(__dirname, './modules/core/src'),
-  'dev-modules': path.resolve(__dirname, './dev-modules'),
-  '@luma.gl/constants': path.resolve(__dirname, './modules/constants/src'),
-  '@luma.gl/debug': path.resolve(__dirname, './modules/debug/src'),
-  '@luma.gl/glfx': path.resolve(__dirname, './modules/glfx/src'),
-  '@luma.gl/gpgpu': path.resolve(__dirname, './modules/gpgpu/src'),
-  '@luma.gl/imageprocessing': path.resolve(__dirname, './modules/imageprocessing/src'),
-  '@luma.gl/io': path.resolve(__dirname, './modules/io/src'),
-  '@luma.gl/test-utils': path.resolve(__dirname, './modules/test-utils/src')
-};
-
-if (module.require) {
-  // Enables ES2015 import/export in Node.js
-  module.require('reify');
-
-  const moduleAlias = module.require('module-alias');
-  moduleAlias.addAliases(ALIASES);
-}
-
-module.exports = ALIASES;
+require('./index');

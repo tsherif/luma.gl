@@ -18,28 +18,50 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-const path = require('path');
+import {RenderTest} from 'deck.gl-test-utils';
 
-const ALIASES = {
-  'luma.gl/test': path.resolve(__dirname, './test'),
-  'luma.gl/constants': path.resolve(__dirname, './modules/core/constants'),
-  'luma.gl': path.resolve(__dirname, './modules/core/src'),
-  'dev-modules': path.resolve(__dirname, './dev-modules'),
-  '@luma.gl/constants': path.resolve(__dirname, './modules/constants/src'),
-  '@luma.gl/debug': path.resolve(__dirname, './modules/debug/src'),
-  '@luma.gl/glfx': path.resolve(__dirname, './modules/glfx/src'),
-  '@luma.gl/gpgpu': path.resolve(__dirname, './modules/gpgpu/src'),
-  '@luma.gl/imageprocessing': path.resolve(__dirname, './modules/imageprocessing/src'),
-  '@luma.gl/io': path.resolve(__dirname, './modules/io/src'),
-  '@luma.gl/test-utils': path.resolve(__dirname, './modules/test-utils/src')
+import {ScatterplotLayer} from 'deck.gl';
+
+const dataSamples = {
+  points: [] // TBA
 };
 
-if (module.require) {
-  // Enables ES2015 import/export in Node.js
-  module.require('reify');
+const TEST_CASES = [
+  {
+    name: 'scatterplot-lnglat',
+    viewState: {
+      latitude: 37.751537058389985,
+      longitude: -122.42694203247012,
+      zoom: 11.5,
+      pitch: 0,
+      bearing: 0
+    },
+    layers: [
+      new ScatterplotLayer({
+        id: 'scatterplot-lnglat',
+        data: dataSamples.points,
+        getPosition: d => d.COORDINATES,
+        getColor: d => [255, 128, 0],
+        getRadius: d => d.SPACES,
+        opacity: 1,
+        pickable: true,
+        radiusScale: 30,
+        radiusMinPixels: 1,
+        radiusMaxPixels: 30
+      })
+    ],
+    referenceImageUrl: './test/render/golden-images/scatterplot-lnglat.png'
+  }
+];
 
-  const moduleAlias = module.require('module-alias');
-  moduleAlias.addAliases(ALIASES);
-}
+const testRendering = new RenderTest({
+  testCases: TEST_CASES,
+  width: 800,
+  height: 450,
+  // Max color delta in the YIQ difference metric for two pixels to be considered the same
+  colorDeltaThreshold: 255 * 0.05,
+  // Percentage of pixels that must be the same for the test to pass
+  testPassThreshold: 0.99
+});
 
-module.exports = ALIASES;
+testRendering.run();
