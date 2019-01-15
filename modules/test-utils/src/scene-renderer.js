@@ -18,9 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import {Deck, MapView} from 'deck.gl';
+// import {Deck, MapView} from 'deck.gl';
 
-import {getImageFromContext} from './luma.gl/io-basic/browser-image-utils';
+import {getImageFromContext} from './browser-image-utils';
 
 const GL_VENDOR = 0x1f00;
 
@@ -50,6 +50,7 @@ export default class SceneRenderer {
   }
 
   run() {
+    /*
     // TODO - for 5.1 compatibility, remove when 5.2 is released
     this.deckgl = new Deck({
       id: 'default-deckgl-overlay',
@@ -61,6 +62,7 @@ export default class SceneRenderer {
       useDevicePixels: false,
       onWebGLInitialized: this._onWebGLInitialized.bind(this)
     });
+    */
 
     this.running = true;
     this.complete = false;
@@ -100,9 +102,10 @@ export default class SceneRenderer {
   }
 
   _renderScene(scene) {
-    const {viewState, layers, views, viewports} = scene;
     const promise = makePromise();
 
+    /*
+    const {viewState, layers, views, viewports} = scene;
     this.deckgl.setProps({
       layers,
       views: views || [new MapView()],
@@ -112,6 +115,7 @@ export default class SceneRenderer {
       // DEPRECATED - temporary 5.1 compatibility, remove when 5.2 is released
       viewports
     });
+    */
 
     // Render again after a timeout to allow layer to load
     // This time the afterRender function will resolve the promise

@@ -20,6 +20,7 @@
 
 /* global window, document */
 
+import {SceneRenderer} from './scene-renderer';
 import {diffImagePixels} from './diff-images';
 import {createImage, getImagePixelData} from './luma.gl/io-basic/browser-image-utils';
 
