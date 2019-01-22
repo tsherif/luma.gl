@@ -58,27 +58,27 @@
           "entries": [
             {
               "name": "Overview",
-              "entry": "docs/developer-guide/shadertools/README"
+              "entry": "docs/developer-guide/shadertools-README"
             },
             {
               "name": "Shader Assembly",
-              "entry": "docs/developer-guide/shadertools/shader-assembly"
+              "entry": "docs/developer-guide/shader-assembly"
             },
             {
               "name": "Using Shader Modules",
-              "entry": "docs/developer-guide/shadertools/using-shader-modules"
+              "entry": "docs/developer-guide/using-shader-modules"
             },
             {
               "name": "Model Integration",
-              "entry": "docs/developer-guide/shadertools/model-integration"
+              "entry": "docs/developer-guide/model-integration"
             },
             {
               "name": "Creating Shader Modules",
-              "entry": "docs/developer-guide/shadertools/writing-shader-modules"
+              "entry": "docs/developer-guide/writing-shader-modules"
             },
             {
               "name": "Writing GLSL Code",
-              "entry": "docs/developer-guide/shadertools/writing-glsl-shaders"
+              "entry": "docs/developer-guide/writing-glsl-shaders"
             }
           ]
         },
@@ -124,7 +124,7 @@
           "entries": [
             {
               "name": "Multi-Pass Rendering",
-              "entry": "docs/developer-guide/multipass/README"
+              "entry": "docs/developer-guide/multipass-README"
             }
           ]
         },
@@ -163,27 +163,27 @@
           "entries": [
             {
               "name": "AnimationLoop",
-              "entry": "docs/api-reference/core/animation-loop"
+              "entry": "docs/api-reference/animation-loop"
             },
             {
               "name": "Model",
-              "entry": "docs/api-reference/core/model"
+              "entry": "docs/api-reference/model"
             },
             {
               "name": "ShaderCache",
-              "entry": "docs/api-reference/core/shader-cache"
+              "entry": "docs/api-reference/shader-cache"
             },
             {
               "name": "Geometry",
-              "entry": "docs/api-reference/core/geometry"
+              "entry": "docs/api-reference/geometry"
             },
             {
               "name": "Object3d",
-              "entry": "core/object-3d"
+              "entry": "docs/api-reference/object-3d"
             },
             {
               "name": "Group",
-              "entry": "docs/core/group"
+              "entry": "docs/api-reference/group"
             }
           ]
         },
@@ -192,27 +192,27 @@
           "entries": [
             {
               "name": "Cone",
-              "entry": "docs/api-reference/models/cone"
+              "entry": "docs/api-reference/cone"
             },
             {
               "name": "Cube",
-              "entry": "docs/api-reference/models/cube"
+              "entry": "docs/api-reference/cube"
             },
             {
               "name": "Cylinder",
-              "entry": "docs/api-reference/models/cylinder"
+              "entry": "docs/api-reference/cylinder"
             },
             {
               "name": "IcoSphere",
-              "entry": "docs/api-reference/models/ico-sphere"
+              "entry": "docs/api-reference/ico-sphere"
             },
             {
               "name": "Plane",
-              "entry": "docs/api-reference/models/plane"
+              "entry": "docs/api-reference/plane"
             },
             {
               "name": "Sphere",
-              "entry": "docs/api-reference/models/sphere"
+              "entry": "docs/api-reference/sphere"
             }
           ]
         },
@@ -221,99 +221,99 @@
           "entries": [
             {
               "name": "Buffer",
-              "entry": "docs/api-reference/webgl/buffer"
+              "entry": "docs/api-reference/buffer"
             },
             {
               "name": "Program",
-              "entry": "docs/api-reference/webgl/program"
+              "entry": "docs/api-reference/program"
             },
             {
               "name": "Query",
-              "entry": "docs/api-reference/webgl/query"
+              "entry": "docs/api-reference/query"
             },
             {
               "name": "Renderbuffer",
-              "entry": "docs/api-reference/webgl/renderbuffer"
+              "entry": "docs/api-reference/renderbuffer"
             },
             {
               "name": "Resource",
-              "entry": "docs/api-reference/webgl/resource"
+              "entry": "docs/api-reference/resource"
             },
             {
               "name": "Sampler",
-              "entry": "docs/api-reference/webgl/sampler"
+              "entry": "docs/api-reference/sampler"
             },
             {
               "name": "Shader",
-              "entry": "docs/api-reference/webgl/shader"
+              "entry": "docs/api-reference/shader"
             },
             {
               "name": "Texture",
-              "entry": "docs/api-reference/webgl/texture"
+              "entry": "docs/api-reference/texture"
             },
             {
               "name": "Texture2D",
-              "entry": "docs/api-reference/webgl/texture-2d"
+              "entry": "docs/api-reference/texture-2d"
             },
             {
               "name": "Texture2DArray",
-              "entry": "docs/api-reference/webgl/texture-2d-array"
+              "entry": "docs/api-reference/texture-2d-array"
             },
             {
               "name": "Texture3D",
-              "entry": "docs/api-reference/webgl/texture-3d"
+              "entry": "docs/api-reference/texture-3d"
             },
             {
               "name": "TextureCube",
-              "entry": "docs/api-reference/webgl/texture-cube"
+              "entry": "docs/api-reference/texture-cube"
             },
             {
               "name": "TransformFeedback",
-              "entry": "docs/api-reference/webgl/transform-feedback"
+              "entry": "docs/api-reference/transform-feedback"
             },
             {
               "name": "UniformBufferLayout",
-              "entry": "docs/api-reference/webgl/uniform-buffer-layout"
+              "entry": "docs/api-reference/uniform-buffer-layout"
             },
             {
               "name": "VertexArray",
-              "entry": "docs/api-reference/webgl/vertex-array"
+              "entry": "docs/api-reference/vertex-array"
             },
             {
               "name": "createGLContext",
-              "entry": "docs/api-reference/webgl/context/context"
+              "entry": "docs/api-reference/context"
             },
             {
               "name": "isWebGL2",
-              "entry": "docs/api-reference/webgl/context/is-webGL2"
+              "entry": "docs/api-reference/is-webGL2"
             },
             {
               "name": "hasFeature(s)",
-              "entry": "docs/api-reference/webgl/context/has-features"
+              "entry": "docs/api-reference/has-features"
             },
             {
               "name": "getFeatures",
-              "entry": "docs/api-reference/webgl/context/get-features"
+              "entry": "docs/api-reference/get-features"
             },
             {
               "name": "getContextInfo",
-              "entry": "docs/api-reference/webgl/context/get-context-info"
+              "entry": "docs/api-reference/get-context-info"
             },
             {
               "name": "getContextLimits",
-              "entry": "docs/api-reference/webgl/context/get-context-limits"
+              "entry": "docs/api-reference/get-context-limits"
             },
             {
               "name": "get|setParameter(s)",
-              "entry": "docs/api-reference/webgl/context/get-parameters"
+              "entry": "docs/api-reference/get-parameters"
             },
             {
               "name": "resetParameters",
-              "entry": "docs/api-reference/webgl/context/reset-parameters"
+              "entry": "docs/api-reference/reset-parameters"
             },
             {
               "name": "withParameters",
-              "entry": "docs/api-reference/webgl/context/with-parameters"
+              "entry": "docs/api-reference/with-parameters"
             }
           ]
         },
@@ -322,11 +322,11 @@
           "entries": [
             {
               "name": "Shadertools:assembleShaders",
-              "entry": "docs/api-reference/shadertools/assemble-shaders"
+              "entry": "docs/api-reference/assemble-shaders"
             },
             {
               "name": "GLSL Reference",
-              "entry": "docs/api-reference/shadertools/glsl-reference"
+              "entry": "docs/api-reference/glsl-reference"
             }
           ]
         },
@@ -335,7 +335,7 @@
           "entries": [
             {
               "name": "picking",
-              "entry": "docs/api-reference/shadertools/shader-module-picking"
+              "entry": "docs/api-reference/shader-module-picking"
             }
           ]
         }
