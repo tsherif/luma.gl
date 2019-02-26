@@ -6,7 +6,6 @@ import {isWebGL, requestAnimationFrame, cancelAnimationFrame} from '../webgl/uti
 import {log} from '../utils';
 import assert from '../utils/assert';
 import {Stats, getHiResTimestamp} from 'probe.gl';
-import {Query} from '../webgl';
 
 // TODO - remove dependency on webgl classes
 import {Framebuffer} from '../webgl';
@@ -113,46 +112,7 @@ export default class AnimationLoop {
   // Starts a render loop if not already running
   // @param {Object} context - contains frame specific info (E.g. tick, width, height, etc)
   start(opts = {}) {
-    if (this._running) {
-      return this;
-    }
-    this._running = true;
-    // console.debug(`Starting ${this.constructor.name}`);
-    // Wait for start promise before rendering frame
-    this._startPromise = getPageLoadPromise()
-      .then(() => {
-        if (!this._running || this._initialized) {
-          return null;
-        }
-
-        // Create the WebGL context
-        this._createWebGLContext(opts);
-        this._createFramebuffer();
-        this._startEventHandling();
-
-        // Initialize the callback data
-        this._initializeCallbackData();
-        this._updateCallbackData();
-
-        // Default viewport setup, in case onInitialize wants to render
-        this._resizeCanvasDrawingBuffer();
-        this._resizeViewport();
-
-        this._gpuTimeQuery = Query.isSupported(this.gl, ['timers']) ? new Query(this.gl) : null;
-
-        // Note: onIntialize can return a promise (in case it needs to load resources)
-        const initializationPromise = this.onInitialize(this.animationProps);
-        this._initialized = true;
-        return initializationPromise;
-      })
-      .then(appContext => {
-        if (this._running) {
-          this._addCallbackData(appContext || {});
-          if (appContext !== false) {
-            this._startLoop();
-          }
-        }
-      });
+    this._startLoop(opts);
     return this;
   }
 
@@ -189,13 +149,7 @@ export default class AnimationLoop {
 
   // Stops a render loop if already running, finalizing
   stop() {
-    // console.debug(`Stopping ${this.constructor.name}`);
-    if (this._running) {
-      this._finalizeCallbackData();
-      cancelAnimationFrame(this._animationFrameId);
-      this._animationFrameId = null;
-      this._running = false;
-    }
+    this._endLoop();
     return this;
   }
 
@@ -243,7 +197,48 @@ export default class AnimationLoop {
 
   // PRIVATE METHODS
 
-  _startLoop() {
+  async _startLoop(opts) {
+    if (this._running) {
+      return;
+    }
+    this._running = true;
+
+    // console.debug(`Starting ${this.constructor.name}`);
+    // Wait for start promise before rendering frame
+    await getPageLoadPromise();
+
+    let appContext = null;
+
+    if (this._running && !this._initialized) {
+      // Create the WebGL context
+      this._createWebGLContext(opts);
+      this._createFramebuffer();
+      this._startEventHandling();
+
+      // Initialize the callback data
+      this._initializeCallbackData();
+      this._updateCallbackData();
+
+      // Default viewport setup, in case onInitialize wants to render
+      this._resizeCanvasDrawingBuffer();
+      this._resizeViewport();
+
+      // Note: onIntialize can return a promise (in case it needs to load resources)
+      const initializationPromise = this.onInitialize(this.animationProps);
+      this._initialized = true;
+
+      appContext = await initializationPromise;
+    }
+
+    if (this._running) {
+      this._addCallbackData(appContext || {});
+      if (appContext !== false) {
+        this._startRenderLoop();
+      }
+    }
+  }
+
+  _startRenderLoop() {
     const renderFrame = () => {
       if (!this._running) {
         return;
@@ -255,6 +250,16 @@ export default class AnimationLoop {
     // cancel any pending renders to ensure only one loop can ever run
     cancelAnimationFrame(this._animationFrameId);
     this._animationFrameId = requestAnimationFrame(renderFrame);
+  }
+
+  _endLoop() {
+    // console.debug(`Stopping ${this.constructor.name}`);
+    if (this._running) {
+      this._finalizeCallbackData();
+      cancelAnimationFrame(this._animationFrameId);
+      this._animationFrameId = null;
+      this._running = false;
+    }
   }
 
   _clearNeedsRedraw() {
