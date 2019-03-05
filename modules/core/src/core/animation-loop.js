@@ -112,47 +112,9 @@ export default class AnimationLoop {
 
   // Starts a render loop if not already running
   // @param {Object} context - contains frame specific info (E.g. tick, width, height, etc)
-  async start(opts = {}) {
-    if (this._running) {
-      return;
-    }
-    this._running = true;
-
-    // console.debug(`Starting ${this.constructor.name}`);
-    // Wait for start promise before rendering frame
-    await getPageLoadPromise();
-
-    let appContext = null;
-
-    if (this._running && !this._initialized) {
-      // Create the WebGL context
-      this._createWebGLContext(opts);
-      this._createFramebuffer();
-      this._startEventHandling();
-
-      // Initialize the callback data
-      this._initializeCallbackData();
-      this._updateCallbackData();
-
-      // Default viewport setup, in case onInitialize wants to render
-      this._resizeCanvasDrawingBuffer();
-      this._resizeViewport();
-
-      this._gpuTimeQuery = Query.isSupported(this.gl, ['timers']) ? new Query(this.gl) : null;
-
-      // Note: onIntialize can return a promise (in case it needs to load resources)
-      const initializationPromise = this.onInitialize(this.animationProps);
-      this._initialized = true;
-
-      appContext = await initializationPromise;
-    }
-
-    if (this._running) {
-      this._addCallbackData(appContext || {});
-      if (appContext !== false) {
-        this._startLoop();
-      }
-    }
+  start(opts = {}) {
+    this._startLoop(opts);
+    return this;
   }
 
   // Stops a render loop if already running, finalizing
@@ -236,18 +198,63 @@ export default class AnimationLoop {
 
   // PRIVATE METHODS
 
-  _startLoop() {
-    const renderFrame = () => {
-      if (!this._running) {
-        return;
-      }
-      this.redraw();
-      this._animationFrameId = requestAnimationFrame(renderFrame);
-    };
+  async _startLoop(opts) {
+    if (this._running) {
+      return;
+    }
+    this._running = true;
 
-    // cancel any pending renders to ensure only one loop can ever run
-    cancelAnimationFrame(this._animationFrameId);
-    this._animationFrameId = requestAnimationFrame(renderFrame);
+    // console.debug(`Starting ${this.constructor.name}`);
+    // Wait for start promise before rendering frame
+    await getPageLoadPromise();
+
+    // stop() might have been called while awaiting the previous promise
+    if (!this._running) {
+      return;
+    }
+
+    let appContext = null;
+
+    if (!this._initialized) {
+      // Create the WebGL context
+      this._createWebGLContext(opts);
+      this._createFramebuffer();
+      this._startEventHandling();
+
+      // Initialize the callback data
+      this._initializeCallbackData();
+      this._updateCallbackData();
+
+      // Default viewport setup, in case onInitialize wants to render
+      this._resizeCanvasDrawingBuffer();
+      this._resizeViewport();
+
+      this._gpuTimeQuery = Query.isSupported(this.gl, ['timers']) ? new Query(this.gl) : null;
+
+      // Note: onIntialize can return a promise (in case it needs to load resources)
+      const initializationPromise = this.onInitialize(this.animationProps);
+      this._initialized = true;
+
+      appContext = await initializationPromise;
+    }
+
+    // stop() might have been called while awaiting the previous promise
+    if (this._running) {
+      this._addCallbackData(appContext || {});
+      if (appContext !== false) {
+        const renderFrame = () => {
+          if (!this._running) {
+            return;
+          }
+          this.redraw();
+          this._animationFrameId = requestAnimationFrame(renderFrame);
+        };
+
+        // cancel any pending renders to ensure only one loop can ever run
+        cancelAnimationFrame(this._animationFrameId);
+        this._animationFrameId = requestAnimationFrame(renderFrame);
+      }
+    }
   }
 
   _endLoop() {

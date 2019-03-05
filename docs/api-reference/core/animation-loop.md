@@ -70,7 +70,7 @@ new AnimationLoop({
 * `props.createFramebuffer`=`false` (bool) - If true, will make a `framebuffer` (FrameBuffer) parameter available to `onInitialize` and `onRender` callbacks.
 
 
-### start([options : Object]) : Promise
+### start([options : Object]) : AnimationLoop
 
 Restarts the animation
 

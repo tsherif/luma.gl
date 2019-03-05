@@ -52,7 +52,7 @@ new AnimationLoopProxy(worker, {
 * `props.autoResizeDrawingBuffer`=`true` - If true, checks the canvas size every frame and updates the drawing buffer size if needed.
 * `props.useDevicePixels` - Whether to use `window.devicePixelRatio` as a multiplier, e.g. in `autoResizeDrawingBuffer` etc.
 
-### start([options : Object]) : Promise
+### start([options : Object]) : AnimationLoopProxy
 
 Initializes and then (re)starts the animation
 
@@ -62,8 +62,6 @@ await animationLoopProxy.start(options)
 ```
 
 * `options.canvas` (string | HTMLCanvasElement) - A *string* containing the `id` of an existing HTML element or a *DOMElement* instance. If `null` or not provided, a new canvas will be created.
-
-Return a `Promise` that resolves when initialization has completed.
 
 ### stop() : AnimationLoopProxy
 
@@ -82,4 +80,3 @@ animationLoopProxy.setProps({...props});
 
 * `props.autoResizeDrawingBuffer` - Update the drawing buffer size to match the canvas size before each call to `onRenderFrame()`
 * `props.useDevicePixels` - Whether to use `window.devicePixelRatio` as a multiplier, e.g. in `autoResizeDrawingBuffer` etc.
-

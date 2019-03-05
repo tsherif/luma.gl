@@ -43,8 +43,7 @@ test('WebGL#AnimationLoop start,stop', t => {
     onFinalize: () => {
       finalizeCalled++;
     }
-  });
-  animationLoop.start();
+  }).start();
 });
 
 test('WebGL#AnimationLoop redraw', t => {
@@ -70,8 +69,7 @@ test('WebGL#AnimationLoop redraw', t => {
     onRender: () => {
       renderCalled++;
     }
-  });
-  animationLoop.start();
+  }).start();
 });
 
 test('WebGL#AnimationLoop two start()s should only run one loop', t => {

@@ -98,9 +98,8 @@ export default class AnimationLoopProxy {
     this.width = null;
     this.height = null;
 
-    this._stopped = true;
+    this._running = false;
     this._animationFrameId = null;
-    this._startPromise = null;
 
     // bind methods
     this._onMessage = this._onMessage.bind(this);
@@ -121,22 +120,8 @@ export default class AnimationLoopProxy {
   /* Public methods */
 
   // Starts a render loop if not already running
-  async start(opts = {}) {
-    this._stopped = false;
-    // console.debug(`Starting ${this.constructor.name}`);
-    if (!this._animationFrameId) {
-      this.worker.onmessage = this._onMessage;
-
-      // Wait for start promise before rendering frame
-      await getPageLoadPromise();
-
-      this._createAndTransferCanvas(opts);
-      await this.props.onInitialize(this);
-
-      if (!this._stopped) {
-        this._animationFrameId = requestAnimationFrame(this._updateFrame);
-      }
-    }
+  start(opts = {}) {
+    this._startLoop();
     return this;
   }
 
@@ -153,6 +138,31 @@ export default class AnimationLoopProxy {
   }
 
   // PRIVATE METHODS
+
+  async _startLoop(opts) {
+    if (this._running) {
+      return;
+    }
+    this._running = true;
+    // console.debug(`Starting ${this.constructor.name}`);
+    this.worker.onmessage = this._onMessage;
+
+    // Wait for start promise before rendering frame
+    await getPageLoadPromise();
+
+    // stop() might have been called while awaiting the previous promise
+    if (!this._running) {
+      return;
+    }
+
+    this._createAndTransferCanvas(opts);
+    await this.props.onInitialize(this);
+
+    // stop() might have been called while awaiting the previous promise
+    if (this._running) {
+      this._animationFrameId = requestAnimationFrame(this._updateFrame);
+    }
+  }
 
   _onMessage(evt) {
     switch (evt.data.command) {
