@@ -109,6 +109,12 @@ export default class AnimationLoop {
     return this;
   }
 
+  firstFrame() {
+    return new Promise(resolve => {
+      this._resolveFirstFrame = resolve;
+    });
+  }
+
   // Starts a render loop if not already running
   // @param {Object} context - contains frame specific info (E.g. tick, width, height, etc)
   start(opts = {}) {
@@ -253,7 +259,10 @@ export default class AnimationLoop {
 
     // cancel any pending renders to ensure only one loop can ever run
     cancelAnimationFrame(this._animationFrameId);
-    this._animationFrameId = requestAnimationFrame(renderFrame);
+    this._animationFrameId = requestAnimationFrame(() => {
+      renderFrame();
+      if (this._resolveFirstFrame) this._resolveFirstFrame();
+    });
   }
 
   _clearNeedsRedraw() {
