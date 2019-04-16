@@ -458,7 +458,8 @@ const animationLoop = new AnimationLoop(new DemoApp());
 animationLoop._setDisplay(new VRDisplay());
 animationLoop.getInfo = () => INFO_HTML;
 
-export default animationLoop;
+// export default animationLoop;
+export default AnimationLoop;
 
 if (typeof window !== 'undefined' && !window.website) {
   animationLoop.start();

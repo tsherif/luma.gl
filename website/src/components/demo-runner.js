@@ -7,6 +7,7 @@ import {updateMeta, useParams} from '../actions/app-actions';
 /* global window */
 window.website = true;
 const Demos = require('../../contents/demos.js');
+let currentDemo = null;
 
 const propTypes = {
   demo: PropTypes.string,
@@ -20,59 +21,63 @@ const defaultProps = {
 const DEFAULT_ALT_TEXT = 'THIS DEMO IS NOT SUPPORTED';
 
 class DemoRunner extends Component {
-
   componentDidMount() {
-    const demo = Demos[this.props.demo];
+    const Demo = Demos[this.props.demo];
+    const demo = new Demo();
     if (demo) {
       demo.start({
         canvas: this.props.canvas
         // debug: true
       });
     }
+    currentDemo = demo;
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.demo !== this.props.demo) {
-      let demo = Demos[this.props.demo];
-      if (demo) {
-        demo.stop();
+      if (currentDemo) {
+        currentDemo.stop();
       }
-      demo = Demos[nextProps.demo];
+      const Demo = Demos[nextProps.demo];
+      const demo = new Demo();
       if (demo) {
         demo.start({canvas: this.props.canvas});
       }
+      currentDemo = demo;
     }
   }
 
   componentWillUnmount() {
-    const demo = Demos[this.props.demo];
-    if (demo) {
-      demo.stop();
+    if (currentDemo) {
+      currentDemo.stop();
     }
   }
 
   render() {
     const {width, height} = this.props;
 
-    const demo = Demos[this.props.demo];
-    if (demo) {
-      const notSupported = demo.isSupported && !demo.isSupported();
+    if (currentDemo) {
+      const notSupported = currentDemo.isSupported && !currentDemo.isSupported();
 
       if (notSupported) {
-        const altText = demo.getAltText ? demo.getAltText() : DEFAULT_ALT_TEXT;
+        const altText = currentDemo.getAltText ? currentDemo.getAltText() : DEFAULT_ALT_TEXT;
         return (
-          <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100vh'
+            }}
+          >
             <h2> {altText} </h2>
           </div>
         );
       }
     }
 
-    return (
-      <canvas id={this.props.canvas} style={{width, height, padding: 0, border: 0}}/>
-    );
+    return <canvas id={this.props.canvas} style={{width, height, padding: 0, border: 0}} />;
   }
-
 }
 
 const mapStateToProps = (state, ownProps) => ({
