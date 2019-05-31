@@ -44,6 +44,13 @@
     </div>
   </div>
   <div class="thumb">
+    <div class="bg-black" data-title="Animation">
+      <a href="#/examples/core-examples/animation">
+        <img src="images/example-animation.png" />
+      </a>
+    </div>
+  </div>
+  <div class="thumb">
     <div class="bg-black" data-title="Transform Feedback">
       <a href="#/examples/core-examples/transform-feedback-webgl-2">
         <img src="images/example-transform-feedback.jpg" />
@@ -52,7 +59,7 @@
   </div>
   <div class="thumb">
     <div class="bg-black" data-title="Transform">
-      <a href="#/examples/core-examples/transform">
+      <a href="#/examples/core-examples/transform-webgl-2">
         <img src="images/example-transform.png" />
       </a>
     </div>
@@ -80,7 +87,7 @@
   </div>
   <div class="thumb">
     <div class="bg-black" data-title="Texture3D">
-      <a href="#/examples/core-examples/texture-3d">
+      <a href="#/examples/core-examples/texture-3d-webgl-2">
         <img src="images/example-texture3d.png" />
       </a>
     </div>
